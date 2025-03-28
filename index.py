@@ -8,32 +8,37 @@ class LacrosseTimerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Lacrosse Timer App - © Dan Finn")
-        self.root.configure(bg="#e6f2ff")  # Changed to a nicer light blue background
-        self.root.geometry("1200x800")
+        self.root.configure(bg="#e6f2ff")  # light blue background
         
-        # Variables to track timers
-        self.intervals = {}  # Store timer objects
-        self.paused_times = {}  # Store paused times in seconds
-        self.timer_frames = {}  # Store timer frames
-        self.timer_count = 2  # Start with 2 timers by default
+        # set to full-screen mode
+        self.root.attributes('-fullscreen', True)
         
-        # Create main frame with scrollbar
-        self.main_frame = tk.Frame(root, bg="#e6f2ff")  # Match the new background color
+        # add escape key to exit full-screen
+        self.root.bind('<Escape>', self.exit_fullscreen)
+        
+        # variables to track timers
+        self.intervals = {}  # store timer objects
+        self.paused_times = {}  # store paused times in seconds
+        self.timer_frames = {}  # store timer frames
+        self.timer_count = 2  # start with 2 timers by default
+        
+        # create main frame with scrollbar
+        self.main_frame = tk.Frame(root, bg="#e6f2ff")
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=70)
         
-        # Create canvas with scrollbar
-        self.canvas = tk.Canvas(self.main_frame, bg="#e6f2ff")  # Match the new background color
+        # create canvas with scrollbar
+        self.canvas = tk.Canvas(self.main_frame, bg="#e6f2ff")
         self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
         
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
-        # Create a frame inside the canvas for the timers
-        self.timer_container = tk.Frame(self.canvas, bg="#e6f2ff")  # Match the new background color
+        # create a frame inside the canvas for the timers
+        self.timer_container = tk.Frame(self.canvas, bg="#e6f2ff")
         self.canvas.create_window((0, 0), window=self.timer_container, anchor="nw")
         
-        # Header
+        # the header
         self.header = tk.Frame(root, bg="#007BFF", height=50)
         self.header.pack(fill=tk.X, side=tk.TOP)
         self.header.pack_propagate(False)
@@ -47,7 +52,7 @@ class LacrosseTimerApp:
         )
         self.title_label.pack(pady=10)
         
-        # Footer with control buttons
+        # footer with control buttons
         self.footer = tk.Frame(root, bg="#007BFF", height=50)
         self.footer.pack(fill=tk.X, side=tk.BOTTOM)
         self.footer.pack_propagate(False)
@@ -85,7 +90,7 @@ class LacrosseTimerApp:
         )
         self.resume_all_btn.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5, pady=10)
         
-        # Add/Remove timer buttons
+        # add & remove timer buttons
         self.add_timer_btn = tk.Button(
             self.footer, 
             text="Add Timer", 
@@ -108,7 +113,7 @@ class LacrosseTimerApp:
         )
         self.remove_timer_btn.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5, pady=10)
         
-        # Save button
+        # save button
         self.save_btn = tk.Button(
             self.footer, 
             text="Save", 
@@ -120,18 +125,22 @@ class LacrosseTimerApp:
         )
         self.save_btn.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5, pady=10)
         
-        # Initialize timers
+        # initialize timers
         self.initialize_timers()
         
-        # Load saved data if exists
+        # load saved data if exists
         self.load_data()
         
-        # Configure canvas scrolling
+        # configure canvas scrolling
         self.timer_container.bind("<Configure>", self.on_frame_configure)
         self.canvas.bind("<Configure>", self.on_canvas_configure)
         
-        # Bind mousewheel for scrolling
+        # bind mousewheel for scrolling
         self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+    
+    def exit_fullscreen(self, event):
+        """Exit full-screen mode when Escape is pressed"""
+        self.root.attributes('-fullscreen', False)
     
     def on_frame_configure(self, event):
         """Reset the scroll region to encompass the inner frame"""
@@ -153,39 +162,39 @@ class LacrosseTimerApp:
     
     def create_timer(self, index):
         """Create a new timer with the given index"""
-        # Create a frame for the timer
-        timer_frame = tk.Frame(self.timer_container, bg="white", bd=1, relief=tk.SOLID, padx=10, pady=10)
-        timer_frame.pack(fill=tk.X, padx=10, pady=10)
+        # create a frame for the timer with reduced width
+        timer_frame = tk.Frame(self.timer_container, bg="white", bd=1, relief=tk.SOLID, padx=5, pady=5)
+        timer_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # Add close button (X) to remove this specific timer
+        # add close button (X) to remove this specific timer
         close_btn = tk.Button(
             timer_frame,
             text="✕",
             command=lambda idx=index: self.remove_specific_timer(idx),
             bg="white",
             fg="red",
-            font=("Arial", 10, "bold"),
+            font=("Arial", 8, "bold"),
             bd=0,
-            padx=5,
+            padx=3,
             pady=0
         )
         close_btn.grid(row=0, column=2, sticky="ne")
         
-        # Player number input
-        player_label = tk.Label(timer_frame, text="Player Number:", bg="white")
-        player_label.grid(row=0, column=0, sticky="w", padx=5, pady=5)
-        player_entry = tk.Entry(timer_frame, width=20)
-        player_entry.grid(row=0, column=1, sticky="w", padx=5, pady=5)
+        # player number input
+        player_label = tk.Label(timer_frame, text="Player:", bg="white", font=("Arial", 9))
+        player_label.grid(row=0, column=0, sticky="w", padx=2, pady=2)
+        player_entry = tk.Entry(timer_frame, width=10, font=("Arial", 9))
+        player_entry.grid(row=0, column=1, sticky="w", padx=2, pady=2)
         
-        # Team name input
-        team_label = tk.Label(timer_frame, text="Team Name:", bg="white")
-        team_label.grid(row=1, column=0, sticky="w", padx=5, pady=5)
-        team_entry = tk.Entry(timer_frame, width=20)
-        team_entry.grid(row=1, column=1, sticky="w", padx=5, pady=5)
+        # team name input
+        team_label = tk.Label(timer_frame, text="Team:", bg="white", font=("Arial", 9))
+        team_label.grid(row=1, column=0, sticky="w", padx=2, pady=2)
+        team_entry = tk.Entry(timer_frame, width=10, font=("Arial", 9))
+        team_entry.grid(row=1, column=1, sticky="w", padx=2, pady=2)
         
-        # Time selection
-        time_label = tk.Label(timer_frame, text="Penalty Time:", bg="white")
-        time_label.grid(row=2, column=0, sticky="w", padx=5, pady=5)
+        # time selection
+        time_label = tk.Label(timer_frame, text="Penalty:", bg="white", font=("Arial", 9))
+        time_label.grid(row=2, column=0, sticky="w", padx=2, pady=2)
         
         time_options = [
             "Not in use",
@@ -202,48 +211,51 @@ class LacrosseTimerApp:
         ]
         
         time_var = tk.StringVar(value=time_options[0])
-        time_dropdown = ttk.Combobox(timer_frame, textvariable=time_var, values=time_options, state="readonly", width=18)
-        time_dropdown.grid(row=2, column=1, sticky="w", padx=5, pady=5)
+        time_dropdown = ttk.Combobox(timer_frame, textvariable=time_var, values=time_options, state="readonly", width=10)
+        time_dropdown.grid(row=2, column=1, sticky="w", padx=2, pady=2)
         time_dropdown.bind("<<ComboboxSelected>>", lambda e, idx=index: self.setup_timer(idx))
         
-        # Timer display
-        time_display = tk.Label(timer_frame, text="00:00:00", font=("Arial", 16, "bold"), bg="white")
-        time_display.grid(row=3, column=0, columnspan=2, pady=10)
+        # timer display
+        time_display = tk.Label(timer_frame, text="00:00:00", font=("Arial", 12, "bold"), bg="white")
+        time_display.grid(row=3, column=0, columnspan=2, pady=5)
         
-        # Control buttons
+        # control buttons
         button_frame = tk.Frame(timer_frame, bg="white")
-        button_frame.grid(row=4, column=0, columnspan=2, pady=5)
+        button_frame.grid(row=4, column=0, columnspan=2, pady=3)
         
         start_btn = tk.Button(
             button_frame, 
             text="Start", 
             command=lambda idx=index: self.start_timer(idx),
             bg="#007BFF",
-            fg="white"
+            fg="white",
+            font=("Arial", 8)
         )
-        start_btn.pack(side=tk.LEFT, padx=5)
+        start_btn.pack(side=tk.LEFT, padx=2)
         
         stop_btn = tk.Button(
             button_frame, 
             text="Stop", 
             command=lambda idx=index: self.stop_timer(idx),
             bg="#007BFF",
-            fg="white"
+            fg="white",
+            font=("Arial", 8)
         )
-        stop_btn.pack(side=tk.LEFT, padx=5)
+        stop_btn.pack(side=tk.LEFT, padx=2)
         
         released_btn = tk.Button(
             button_frame, 
             text="Released", 
             command=lambda idx=index: self.clear_timer(idx),
             bg="#007BFF",
-            fg="white"
+            fg="white",
+            font=("Arial", 8)
         )
-        released_btn.pack(side=tk.LEFT, padx=5)
+        released_btn.pack(side=tk.LEFT, padx=2)
         
         # Penalty type selection
-        penalty_label = tk.Label(timer_frame, text="Penalty Type:", bg="white")
-        penalty_label.grid(row=5, column=0, sticky="w", padx=5, pady=5)
+        penalty_label = tk.Label(timer_frame, text="Penalty Type:", bg="white", font=("Arial", 9))
+        penalty_label.grid(row=5, column=0, sticky="w", padx=2, pady=2)
         
         penalty_options = [
             "Select Penalty Type",
@@ -259,16 +271,16 @@ class LacrosseTimerApp:
         ]
         
         penalty_var = tk.StringVar(value=penalty_options[0])
-        penalty_dropdown = ttk.Combobox(timer_frame, textvariable=penalty_var, values=penalty_options, state="readonly", width=18)
-        penalty_dropdown.grid(row=5, column=1, sticky="w", padx=5, pady=5)
+        penalty_dropdown = ttk.Combobox(timer_frame, textvariable=penalty_var, values=penalty_options, state="readonly", width=10)
+        penalty_dropdown.grid(row=5, column=1, sticky="w", padx=2, pady=2)
         
-        # Penalty time input
-        penalty_time_label = tk.Label(timer_frame, text="Time of Penalty:", bg="white")
-        penalty_time_label.grid(row=6, column=0, sticky="w", padx=5, pady=5)
-        penalty_time_entry = tk.Entry(timer_frame, width=20)
-        penalty_time_entry.grid(row=6, column=1, sticky="w", padx=5, pady=5)
+        # penalty time input
+        penalty_time_label = tk.Label(timer_frame, text="Time:", bg="white", font=("Arial", 9))
+        penalty_time_label.grid(row=6, column=0, sticky="w", padx=2, pady=2)
+        penalty_time_entry = tk.Entry(timer_frame, width=10, font=("Arial", 9))
+        penalty_time_entry.grid(row=6, column=1, sticky="w", padx=2, pady=2)
         
-        # Store references to widgets
+        # store references to widgets
         self.timer_frames[index] = {
             "frame": timer_frame,
             "player_entry": player_entry,
@@ -277,31 +289,38 @@ class LacrosseTimerApp:
             "time_display": time_display,
             "penalty_var": penalty_var,
             "penalty_time_entry": penalty_time_entry,
-            "close_btn": close_btn  # Store reference to close button
+            "close_btn": close_btn  # store reference to close button
         }
         
-        # Initialize timer values
+        # start timer values
         self.paused_times[index] = 0
     
+    # The rest of the methods remain the same as in the previous version
+    # (remove_specific_timer, setup_timer, start_timer, update_timer, stop_timer, 
+    #  clear_timer, start_all_timers, stop_all_timers, resume_all_timers, 
+    #  add_timer, remove_timer, save_data, load_data, 
+    #  seconds_to_hms, hms_to_seconds)
+    # ... (full previous implementation)
+
     def remove_specific_timer(self, index):
         """Remove a specific timer by its index"""
         if len(self.timer_frames) <= 1:
             messagebox.showinfo("Cannot Remove", "You must have at least one timer.")
             return
             
-        # Stop the timer if running
+        # stop the timer if running
         self.stop_timer(index)
         
-        # Remove the timer frame
+        # remove the timer frame
         if index in self.timer_frames:
             self.timer_frames[index]["frame"].destroy()
             del self.timer_frames[index]
             
-            # Remove from paused_times
+            # remove from paused_times
             if index in self.paused_times:
                 del self.paused_times[index]
             
-            # Update scroll region
+            # update scroll region
             self.canvas.configure(scrollregion=self.canvas.bbox("all"))
     
     def setup_timer(self, index):
@@ -315,7 +334,7 @@ class LacrosseTimerApp:
             self.timer_frames[index]["time_display"].config(text="00:00:00")
             return
         
-        # Convert time string to seconds
+        # convert time string to seconds
         self.paused_times[index] = self.hms_to_seconds(time_str)
         self.timer_frames[index]["time_display"].config(text=self.seconds_to_hms(self.paused_times[index]))
     
@@ -324,10 +343,10 @@ class LacrosseTimerApp:
         if index not in self.timer_frames:
             return
         
-        # Stop existing timer if running
+        # stop existing timer if running
         self.stop_timer(index)
         
-        # Start a new timer
+        # start a new timer
         if self.paused_times[index] > 0:
             self.intervals[index] = self.root.after(1000, lambda: self.update_timer(index))
     
@@ -341,7 +360,7 @@ class LacrosseTimerApp:
             self.timer_frames[index]["time_display"].config(text=self.seconds_to_hms(self.paused_times[index]))
             self.intervals[index] = self.root.after(1000, lambda: self.update_timer(index))
         else:
-            # Timer reached zero
+            # timer reached zero
             if index in self.intervals:
                 self.root.after_cancel(self.intervals[index])
                 del self.intervals[index]
@@ -357,10 +376,10 @@ class LacrosseTimerApp:
         if index not in self.timer_frames:
             return
         
-        # Stop the timer if running
+        # stop the timer if running
         self.stop_timer(index)
         
-        # Reset the time
+        # reset the time
         self.paused_times[index] = 0
         self.timer_frames[index]["time_display"].config(text="00:00:00")
     
@@ -384,30 +403,30 @@ class LacrosseTimerApp:
         """Add a new timer"""
         self.timer_count += 1
         self.create_timer(self.timer_count)
-        # Update scroll region
+        # update scroll region
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
     
     def remove_timer(self):
         """Remove the last timer"""
         if self.timer_count > 1:
-            # Find the highest index timer
+            # find the highest index timer
             highest_index = max(self.timer_frames.keys())
             
-            # Stop the timer if running
+            # stop the timer if running
             self.stop_timer(highest_index)
             
-            # Remove the timer frame
+            # remove the timer frame
             if highest_index in self.timer_frames:
                 self.timer_frames[highest_index]["frame"].destroy()
                 del self.timer_frames[highest_index]
                 
-                # Remove from paused_times
+                # remove from paused_times
                 if highest_index in self.paused_times:
                     del self.paused_times[highest_index]
                 
                 self.timer_count -= 1
                 
-                # Update scroll region
+                # update scroll region
                 self.canvas.configure(scrollregion=self.canvas.bbox("all"))
     
     def save_data(self):
@@ -444,7 +463,7 @@ class LacrosseTimerApp:
             with open("lacrosse_timer_data.json", "r") as f:
                 data = json.load(f)
             
-            # Clear existing timers
+            # clear existing timers
             for index in list(self.timer_frames.keys()):
                 if index in self.intervals:
                     self.root.after_cancel(self.intervals[index])
@@ -454,15 +473,15 @@ class LacrosseTimerApp:
             self.intervals = {}
             self.paused_times = {}
             
-            # Set timer count
+            # set timer count
             self.timer_count = data.get("timer_count", 2)
             
-            # Create new timers based on saved data
+            # create new timers based on saved data
             for index_str, timer_data in data.get("timers", {}).items():
                 index = int(index_str)
                 self.create_timer(index)
                 
-                # Set values
+                # set values
                 if index in self.timer_frames:
                     self.timer_frames[index]["player_entry"].insert(0, timer_data.get("player_number", ""))
                     self.timer_frames[index]["team_entry"].insert(0, timer_data.get("team_name", ""))
@@ -470,7 +489,7 @@ class LacrosseTimerApp:
                     self.timer_frames[index]["penalty_var"].set(timer_data.get("penalty_type", "Select Penalty Type"))
                     self.timer_frames[index]["penalty_time_entry"].insert(0, timer_data.get("penalty_time", ""))
                     
-                    # Set remaining time
+                    # set remaining time
                     self.paused_times[index] = timer_data.get("remaining_time", 0)
                     self.timer_frames[index]["time_display"].config(text=self.seconds_to_hms(self.paused_times[index]))
             
