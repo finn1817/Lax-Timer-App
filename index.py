@@ -6,13 +6,12 @@ from datetime import datetime
 
 
 class LacrosseTimerApp:
-
+    
     def main():
-    print("App is starting...")
-    root = tk.Tk()
-    app = LacrosseTimerApp(root)
-    root.mainloop()
-
+        print("App is starting...")
+        root = tk.Tk()
+        app = LacrosseTimerApp(root)
+        root.mainloop()
     
     def __init__(self, root):
         self.root = root
